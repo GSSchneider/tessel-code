@@ -68,6 +68,7 @@ servo.on('ready', function () {
   });
   const LEAN_POWER = 7; // bigger is leaner
   const LEAN = Math.pow(2, LEAN_POWER);
+  var rollingLEDBase = 0;
   mic.on("data", buffer => {
     var avg = 0;
     for (var i = 0; i < buffer.length; i += LEAN) {
@@ -93,10 +94,12 @@ servo.on('ready', function () {
     setLed(1, avg2 < 70);
     setLed(2, avg2 < 75);
     setLed(3, avg2 < 80);*/
-    setLed(0, threshold < 10);
-    setLed(1, threshold < 20);
-    setLed(2, threshold < 40);
-    setLed(3, shouldTalk);
+    rollingLEDBase++;
+    rollingLED = Math.floor((rollingLEDBase + 1)/2) % 4;
+    setLed(0, rollingLED === 3 || rollingLED !== 2 && threshold < 10);
+    setLed(1, rollingLED === 2 || rollingLED !== 1 && threshold < 20);
+    setLed(2, rollingLED === 1 || rollingLED !== 0 && threshold < 40);
+    setLed(3, rollingLED === 0 || rollingLED !== 3 && shouldTalk);
     if (shouldTalk && threshold === 0) {
       const PHRASES = [
         "destroy them my robots",
